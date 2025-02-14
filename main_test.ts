@@ -1,11 +1,11 @@
-import { TypedFormData, TypedMap, TypedURLSearchParams } from "./main.ts";
+import { GuardedFormData, GuardedMap, GuardedURLSearchParams } from "./main.ts";
 
 Deno.test(function mapExplicitTest() {
   // Need to pass a known set of keys to allow narrowing the type
   // otherwise it could be any string created by any means at runtime
   type KnownKeys = "key" | "key2";
 
-  const map = new TypedMap<KnownKeys, string>();
+  const map = new GuardedMap<KnownKeys, string>();
 
   map.set("key", "value");
 
@@ -21,7 +21,7 @@ Deno.test(function mapExplicitTest() {
 });
 
 Deno.test(function mapInferredTest() {
-  const map = new TypedMap([["key", "value"], ["key2", "value"]] as const);
+  const map = new GuardedMap([["key", "value"], ["key2", "value"]] as const);
 
   map.set("key", "value");
 
@@ -39,7 +39,7 @@ Deno.test(function mapInferredTest() {
 Deno.test(function formDataTest() {
   type KnownKeys = "key" | "key2";
 
-  const formData = new TypedFormData<KnownKeys>();
+  const formData = new GuardedFormData<KnownKeys>();
 
   // Set known key
   formData.set("key", "value");
@@ -64,20 +64,20 @@ Deno.test(async function formDataRequestTest() {
     body: new FormData(),
   });
   const data = await req.formData();
-  const _formData = data as unknown as TypedFormData<KnownKeys>;
+  const _formData = data as unknown as GuardedFormData<KnownKeys>;
 });
 
 Deno.test(function formDataConversionTest() {
   type KnownKeys = "key" | "key2";
 
   const data = new FormData();
-  const _formData = data as unknown as TypedFormData<KnownKeys>;
+  const _formData = data as unknown as GuardedFormData<KnownKeys>;
 });
 
 Deno.test(function urlSearchParamsTest() {
   type KnownKeys = "key" | "key2";
 
-  const searchParams = new TypedURLSearchParams<KnownKeys>();
+  const searchParams = new GuardedURLSearchParams<KnownKeys>();
 
   // Set known key
   searchParams.set("key", "value");
@@ -104,7 +104,7 @@ Deno.test(function urlSearchParamsConversionTest() {
   type KnownKeys = "key" | "key2";
 
   const url = new URL("https://test.com?key=foo&key2=bar");
-  const _typedSearchParams1 = url.searchParams as TypedURLSearchParams<
+  const _typedSearchParams1 = url.searchParams as GuardedURLSearchParams<
     KnownKeys
   >;
 });

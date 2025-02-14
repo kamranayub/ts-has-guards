@@ -1,49 +1,49 @@
 // deno-lint-ignore no-explicit-any
-export const TypedMap: TypedMapConstructor = Map as any;
+export const GuardedMap: GuardedMapConstructor = Map as any;
 
 // deno-lint-ignore no-explicit-any
-export const TypedFormData: TypedFormDataConstructor = FormData as any;
+export const GuardedFormData: GuardedFormDataConstructor = FormData as any;
 
-export const TypedURLSearchParams: TypedURLSearchParamsConstructor = // deno-lint-ignore no-explicit-any
+export const GuardedURLSearchParams: GuardedURLSearchParamsConstructor = // deno-lint-ignore no-explicit-any
   URLSearchParams as any;
 
 /**
  * A version of `Map` with the ability to type-guard against known keys.
- * 
+ *
  * @example Creating a new guarded `Map`:
  * ```ts
- * import { TypedMap } from '@kamranayub/ts-has-guards';
- * 
+ * import { GuardedMap } from '@kamranayub/ts-has-guards';
+ *
  * type KnownKeys = "username" | "password";
- * const map = new TypedMap<KnownKeys, string>();
+ * const map = new GuardedMap<KnownKeys, string>();
  * ```
- * 
+ *
  * @example Creating a new guarded `Map` with inferred key-values:
  * ```ts
- * import { TypedMap } from '@kamranayub/ts-has-guards';
- * 
- * const map = new TypedMap([
- *   ['username', ''], 
+ * import { GuardedMap } from '@kamranayub/ts-has-guards';
+ *
+ * const map = new GuardedMap([
+ *   ['username', ''],
  *   ['password', '']
  * ] as const);
  * ```
- * 
- * @example Converting a `Map` to a guarded `TypedMap`:
+ *
+ * @example Converting a `Map` to a guarded `GuardedMap`:
  * Unfortunately, the two types are not directly assignable so you have to cast as `unknown` first.
  * ```ts
- * import { TypedMap } from '@kamranayub/ts-has-guards';
- * 
+ * import { GuardedMap } from '@kamranayub/ts-has-guards';
+ *
  * type KnownKeys = 'key1' | 'key2';
- * const map = otherMap as unknown as TypedMap<KnownKeys, string>;
+ * const map = otherMap as unknown as GuardedMap<KnownKeys, string>;
  * ```
  */
-export interface TypedMap<K, V> extends Map<K, V> {
+export interface GuardedMap<K, V> extends Map<K, V> {
   has<P extends K>(key: P): this is { get(key: P): V } & this;
 }
 
-interface TypedMapConstructor {
-  new <K, V>(): TypedMap<K, V>;
-  new <K, V>(entries: Array<[K, V]>): TypedMap<K, V>;
+interface GuardedMapConstructor {
+  new <K, V>(): GuardedMap<K, V>;
+  new <K, V>(entries: Array<[K, V]>): GuardedMap<K, V>;
 }
 
 /**
@@ -51,10 +51,10 @@ interface TypedMapConstructor {
  *
  * @example Creating a new guarded `FormData`:
  * ```ts
- * import { TypedFormData } from '@kamranayub/ts-has-guards';
- * 
+ * import { GuardedFormData } from '@kamranayub/ts-has-guards';
+ *
  * type KnownKeys = "username" | "password";
- * const formData = new TypedFormData<KnownKeys>();
+ * const formData = new GuardedFormData<KnownKeys>();
  * ```
  *
  * @example Converting an existing `FormData` from a `Request` instance:
@@ -64,7 +64,7 @@ interface TypedMapConstructor {
  *
  * const req = new Request();
  * const rawFormData = await req.formData();
- * const formData = rawFormData as unknown as TypedFormData<KnownKeys>;
+ * const formData = rawFormData as unknown as GuardedFormData<KnownKeys>;
  * ```
  *
  * @example Converting an existing `FormData` instance:
@@ -76,23 +76,27 @@ interface TypedMapConstructor {
  * const searchParams = data as unknown as FormData<KnownKeys>;
  * ```
  */
-export interface TypedFormData<
+export interface GuardedFormData<
   K = string,
   V extends FormDataEntryValue = FormDataEntryValue,
 > {
+  has<P extends K>(name: P): this is { get(name: P): V } & this;
+
+  //
+  // the rest is all the same
+  //
   append(name: K, value: V | Blob, fileName?: string): void;
   delete(name: K): void;
   get(name: K): V | null;
   getAll(name: K): V[];
-  has<P extends K>(name: P): this is { get(name: P): V } & this;
   set(name: K, value: string | Blob, fileName?: string): void;
 }
 
-interface TypedFormDataConstructor {
+interface GuardedFormDataConstructor {
   new <
     K = string,
     V extends FormDataEntryValue = FormDataEntryValue,
-  >(): TypedFormData<K, V>;
+  >(): GuardedFormData<K, V>;
 }
 
 /**
@@ -101,26 +105,30 @@ interface TypedFormDataConstructor {
  * @example Creating a new typed `URLSearchParams`:
  * ```ts
  * type KnownKeys = "term" | "filter";
- * const searchParams = new TypedURLSearchParams<KnownKeys>();
+ * const searchParams = new GuardedURLSearchParams<KnownKeys>();
  * ```
  * @example Converting an existing `URLSearchParams` from a `URL` instance:
- * 
+ *
  * ```ts
  * type KnownKeys = "term" | "filter";
  *
  * const url = new URL("https://test.com?term=search&filer=by_date");
- * const searchParams = url.searchParams as TypedURLSearchParams<KnownKeys>;
+ * const searchParams = url.searchParams as GuardedURLSearchParams<KnownKeys>;
  * ```
  */
-export interface TypedURLSearchParams<K = string> {
-  append(name: K, value: string): void;
-  delete(name: K, value?: string): void;
-  get(name: K): string | null;
-  getAll(name: K): string[];
+export interface GuardedURLSearchParams<K = string> {
   has<P extends K>(
     name: P,
     value?: string,
   ): this is { get(name: P): string } & this;
+
+  //
+  // the rest is all the same
+  //
+  append(name: K, value: string): void;
+  delete(name: K, value?: string): void;
+  get(name: K): string | null;
+  getAll(name: K): string[];
   set(name: K, value: string): void;
   sort(): void;
   forEach(
@@ -136,9 +144,9 @@ export interface TypedURLSearchParams<K = string> {
   size: number;
 }
 
-interface TypedURLSearchParamsConstructor {
-  new <K = string>(): TypedURLSearchParams<K>;
+interface GuardedURLSearchParamsConstructor {
+  new <K = string>(): GuardedURLSearchParams<K>;
   new <K extends string | number | symbol = string>(
     init?: Iterable<string[]> | Record<K, string> | string,
-  ): TypedURLSearchParams<K>;
+  ): GuardedURLSearchParams<K>;
 }
