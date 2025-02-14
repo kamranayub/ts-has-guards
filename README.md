@@ -19,7 +19,11 @@ if (map.has('key')) {
 
 But with this library, it works like you might expect. `map.get('key')` will be narrowed to `number` instead of `number | undefined`. Without any additional typings.
 
-Additionally, this library provides type-guarded equivalents for `TypedFormData` and `TypedURLSearchParams`.
+This library provides type-guarded `has` methods for:
+
+- `Map.has`
+- `FormData.has`
+- `URLSearchParams.has`
 
 ## Getting Started
 
