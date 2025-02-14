@@ -84,7 +84,7 @@ View the [docs on JSR](https://jsr.io/@kamranayub/ts-has-guards/doc).
 
 ## Shameless Plug
 
-Maybe have a listen to [typescript.fm](https://typescript.fm). :mic:
+Maybe have a listen to [typescript.fm](https://typescript.fm). :microphone:
 
 ## FAQ
 
