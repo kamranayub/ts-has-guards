@@ -40,6 +40,20 @@ Deno.test(function formDataTest() {
   }
 });
 
+Deno.test(async function formDataRequestTest() {
+  type KnownKeys = "key" | "key2";
+
+  const req = new Request(new URL("https://test.com"));
+  const _formData = await req.formData<KnownKeys>();
+});
+
+Deno.test(function formDataConversionTest() {
+  type KnownKeys = "key" | "key2";
+
+  const data = new FormData();
+  const _formData = data as unknown as TypedFormData<KnownKeys>;
+});
+
 Deno.test(function urlSearchParamsTest() {
   type KnownKeys = "key" | "key2";
 
@@ -69,7 +83,8 @@ Deno.test(function urlSearchParamsTest() {
 Deno.test(function urlSearchParamsConversionTest() {
   type KnownKeys = "key" | "key2";
 
-  const searchParams = new URLSearchParams();
-
-  const _typedSearchParams1 = searchParams as TypedURLSearchParams<KnownKeys>;
+  const url = new URL("https://test.com?key=foo&key2=bar");
+  const _typedSearchParams1 = url.searchParams as TypedURLSearchParams<
+    KnownKeys
+  >;
 });
