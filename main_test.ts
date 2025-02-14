@@ -1,12 +1,11 @@
-import "./main.ts";
-import { TypedFormData, TypedURLSearchParams } from "./main.ts";
+import { TypedFormData, TypedMap, TypedURLSearchParams } from "./main.ts";
 
 Deno.test(function mapExplicitTest() {
   // Need to pass a known set of keys to allow narrowing the type
   // otherwise it could be any string created by any means at runtime
   type KnownKeys = "key" | "key2";
 
-  const map = new Map<KnownKeys, string>();
+  const map = new TypedMap<KnownKeys, string>();
 
   map.set("key", "value");
 
@@ -22,7 +21,7 @@ Deno.test(function mapExplicitTest() {
 });
 
 Deno.test(function mapInferredTest() {
-  const map = new Map([['key', 'value'], ['key2', 'value']] as const);
+  const map = new TypedMap([["key", "value"], ["key2", "value"]] as const);
 
   map.set("key", "value");
 
@@ -59,12 +58,13 @@ Deno.test(function formDataTest() {
 Deno.test(async function formDataRequestTest() {
   type KnownKeys = "key" | "key2";
 
-  const req = new Request(new URL("https://test.com"), { 
-    headers: { 'content-type': 'application/x-www-form-urlencoded' },
-    method: 'POST',
-    body: new FormData()
+  const req = new Request(new URL("https://test.com"), {
+    headers: { "content-type": "application/x-www-form-urlencoded" },
+    method: "POST",
+    body: new FormData(),
   });
-  const _formData = await req.formData<KnownKeys>();
+  const data = await req.formData();
+  const _formData = data as unknown as TypedFormData<KnownKeys>;
 });
 
 Deno.test(function formDataConversionTest() {

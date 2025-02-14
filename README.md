@@ -1,29 +1,33 @@
 # ts-has-guards
 
 TypeScript utility types that augment built-in collection types like Map,
-FormData, and URLSearchParams that use `.has(key)` methods to offer a type 
+FormData, and URLSearchParams that use `.has(key)` methods to offer a type
 guarding capability that works with `.get(key)`.
+
+> [!WARNING]
+> This package is pretty experimental, but I welcome improvements to the DX.
 
 ## The Problem
 
 This will throw an error in vanilla TS:
 
 ```ts
-const map = new Map([['key', 1]] as const);
+const map = new Map([["key", 1]] as const);
 
-if (map.has('key')) {
-    const value: number = map.get('key');
-//  !!!   ^---- ERROR!
+if (map.has("key")) {
+  const value: number = map.get("key");
+  //  !!!   ^---- ERROR!
 }
 ```
 
-But with this library, it works like you might expect. `map.get('key')` will be narrowed to `number` instead of `number | undefined`. Without any additional typings.
+But with this library, it works like you might expect. `map.get('key')` will be
+narrowed to `number` instead of `number | undefined`.
 
 This library provides type-guarded `has` methods for:
 
-- `Map.has`
-- `FormData.has`
-- `URLSearchParams.has`
+- `Map.has` using `TypedMap`
+- `FormData.has` using `TypedFormData`
+- `URLSearchParams.has` using `TypedURLSearchParams`
 
 ## Getting Started
 
@@ -42,24 +46,26 @@ This library was built with [Deno](https://deno.com).
 
 ## Usage
 
-In a `globals.ts` file, you can import the package:
+To use the typed versions of `Map`, `URLSearchParams` and `FormData`, you need to
+explicitly use and import them (each of them are prefixed with `Typed`):
 
 ```ts
-import '@kamranayub/ts-has-guards';
-```
-
-This should activate the augmented global typings for `Map.has` and `Body.formData`.
-
-To use the typed versions of `URLSearchParams` and `FormData`, you need to explicitly use and import them:
-
-```ts
-import { TypedURLSearchParams, TypedFormData } from '@kamranayub/ts-has-guards';
+import { TypedMap, TypedFormData, TypedURLSearchParams } from "@kamranayub/ts-has-guards";
 
 // Use like regular API but you can pass an explicit set of known keys
-type KnownKeys = 'key1' | 'key2';
+type KnownKeys = "key1" | "key2";
 
+const map = new TypedMap<KnownKeys, number>();
 const searchParams = new TypedURLSearchParams<KnownKeys>();
 const formData = new TypedFormData<KnownKeys>();
+```
+
+When converting built-in lib types to the guarded versions, you must cast as `unknown` first:
+
+```ts
+map as unknown as TypedMap<MyKeys, string>
+formData as unknown as TypedFormData<MyKeys>
+searchParams as unknown as TypedSearchParams<MyKeys>
 ```
 
 You can reference the tests or docs for some more examples.
@@ -72,8 +78,19 @@ View the [docs on JSR](https://jsr.io/@kamranayub/ts-has-guards/doc).
 
 Maybe have a listen to [typescript.fm](https://typescript.fm). :mic:
 
+## FAQ
+
+<details>
+    <summary>Why can't I augment the global types?</summary>
+
+You could with `Map`, however this is not supported for a published JSR package [due to slow typings](https://jsr.io/docs/about-slow-types#global-augmentation). If you'd like to use a local version in your app, you can copy from [the StackOverflow answer](https://stackoverflow.com/a/73467859/109458) and put it under a `globals.d.ts` file or `declare global { }` if using modules.
+
+This will not work with the `FormData` and `URLSearchParams` though because those types are not generic and TS will yell at you if you try to redeclare them with generic typings.
+</details>
+
 ## Credits
 
-Built on the [shoulders of giants](https://stackoverflow.com/a/73467859/109458). 
+Built on the [shoulders of giants](https://stackoverflow.com/a/73467859/109458).
 
-Inspired by [@dbushell](https://bsky.app/profile/dbushell.com/post/3li5bohbiok27).
+Inspired by
+[@dbushell](https://bsky.app/profile/dbushell.com/post/3li5bohbiok27).

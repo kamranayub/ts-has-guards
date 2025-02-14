@@ -1,36 +1,70 @@
-declare global {
-  /**
-   * Augments `Map` with the ability to type-guard against known keys.
-   */
-  interface Map<K, V> {
-    has<P extends K>(key: P): this is { get(key: P): V } & this;
-  }
+// deno-lint-ignore no-explicit-any
+export const TypedMap: TypedMapConstructor = Map as any;
 
-  /**
-   * Augments `Body` that augments the `formData` method to supports returning a {@see TypedFormData}.
-   */
-  interface Body {
-    formData<K, V extends FormDataEntryValue = FormDataEntryValue>(): Promise<
-      TypedFormData<K, V>
-    >;
-  }
+// deno-lint-ignore no-explicit-any
+export const TypedFormData: TypedFormDataConstructor = FormData as any;
+
+export const TypedURLSearchParams: TypedURLSearchParamsConstructor = // deno-lint-ignore no-explicit-any
+  URLSearchParams as any;
+
+/**
+ * A version of `Map` with the ability to type-guard against known keys.
+ * 
+ * @example Creating a new guarded `Map`:
+ * ```ts
+ * import { TypedMap } from '@kamranayub/ts-has-guards';
+ * 
+ * type KnownKeys = "username" | "password";
+ * const map = new TypedMap<KnownKeys, string>();
+ * ```
+ * 
+ * @example Creating a new guarded `Map` with inferred key-values:
+ * ```ts
+ * import { TypedMap } from '@kamranayub/ts-has-guards';
+ * 
+ * const map = new TypedMap([
+ *   ['username', ''], 
+ *   ['password', '']
+ * ] as const);
+ * ```
+ * 
+ * @example Converting a `Map` to a guarded `TypedMap`:
+ * Unfortunately, the two types are not directly assignable so you have to cast as `unknown` first.
+ * ```ts
+ * import { TypedMap } from '@kamranayub/ts-has-guards';
+ * 
+ * type KnownKeys = 'key1' | 'key2';
+ * const map = otherMap as unknown as TypedMap<KnownKeys, string>;
+ * ```
+ */
+export interface TypedMap<K, V> extends Map<K, V> {
+  has<P extends K>(key: P): this is { get(key: P): V } & this;
+}
+
+interface TypedMapConstructor {
+  new <K, V>(): TypedMap<K, V>;
+  new <K, V>(entries: Array<[K, V]>): TypedMap<K, V>;
 }
 
 /**
  * A version of `FormData` with the ability to type-guard against known keys.
  *
- * @example Creating a new typed `FormData`:
+ * @example Creating a new guarded `FormData`:
  * ```ts
+ * import { TypedFormData } from '@kamranayub/ts-has-guards';
+ * 
  * type KnownKeys = "username" | "password";
  * const formData = new TypedFormData<KnownKeys>();
  * ```
  *
  * @example Converting an existing `FormData` from a `Request` instance:
+ * Unfortunately, the two types are not directly assignable so you have to cast as `unknown` first.
  * ```ts
  * type KnownKeys = "username" | "password";
  *
  * const req = new Request();
- * const searchParams = req.formData<KnownKeys>();
+ * const rawFormData = await req.formData();
+ * const formData = rawFormData as unknown as TypedFormData<KnownKeys>;
  * ```
  *
  * @example Converting an existing `FormData` instance:
@@ -54,6 +88,13 @@ export interface TypedFormData<
   set(name: K, value: string | Blob, fileName?: string): void;
 }
 
+interface TypedFormDataConstructor {
+  new <
+    K = string,
+    V extends FormDataEntryValue = FormDataEntryValue,
+  >(): TypedFormData<K, V>;
+}
+
 /**
  * A version of `URLSearchParams` with the ability to type-guard against known keys.
  *
@@ -63,6 +104,7 @@ export interface TypedFormData<
  * const searchParams = new TypedURLSearchParams<KnownKeys>();
  * ```
  * @example Converting an existing `URLSearchParams` from a `URL` instance:
+ * 
  * ```ts
  * type KnownKeys = "term" | "filter";
  *
@@ -94,13 +136,9 @@ export interface TypedURLSearchParams<K = string> {
   size: number;
 }
 
-export const TypedFormData: new <
-  K = string,
-  V extends FormDataEntryValue = FormDataEntryValue,
-> // deno-lint-ignore no-explicit-any
-() => TypedFormData<K, V> = FormData as any;
-
-export const TypedURLSearchParams: new <K = string>() => TypedURLSearchParams<
-  K
-> // deno-lint-ignore no-explicit-any
- = URLSearchParams as any;
+interface TypedURLSearchParamsConstructor {
+  new <K = string>(): TypedURLSearchParams<K>;
+  new <K extends string | number | symbol = string>(
+    init?: Iterable<string[]> | Record<K, string> | string,
+  ): TypedURLSearchParams<K>;
+}
