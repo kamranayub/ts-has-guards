@@ -29,4 +29,6 @@ Maybe have a listen to [typescript.fm](https://typescript.fm). :mic:
 
 ## Credits
 
-Built on the [shoulders of giants](https://stackoverflow.com/a/73467859/109458). Inspired by @dbushell.
+Built on the [shoulders of giants](https://stackoverflow.com/a/73467859/109458). 
+
+Inspired by [@dbushell](https://bsky.app/profile/dbushell.com/post/3li5bohbiok27).
