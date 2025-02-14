@@ -1,12 +1,28 @@
 import "./main.ts";
 import { TypedFormData, TypedURLSearchParams } from "./main.ts";
 
-Deno.test(function mapTest() {
+Deno.test(function mapExplicitTest() {
   // Need to pass a known set of keys to allow narrowing the type
   // otherwise it could be any string created by any means at runtime
   type KnownKeys = "key" | "key2";
 
   const map = new Map<KnownKeys, string>();
+
+  map.set("key", "value");
+
+  // @ts-expect-error unknown is not a known key
+  map.set("unknown", "should error");
+
+  if (map.has("key")) {
+    const _value: string = map.get("key");
+
+    // @ts-expect-error 2322
+    const _unknownValue: string = map.get("key2");
+  }
+});
+
+Deno.test(function mapInferredTest() {
+  const map = new Map([['key', 'value'], ['key2', 'value']] as const);
 
   map.set("key", "value");
 
