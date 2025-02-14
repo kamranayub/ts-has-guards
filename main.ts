@@ -1,13 +1,13 @@
 declare global {
   /**
-   * A version of `Map` with the ability to type-guard against known keys.
+   * Augments `Map` with the ability to type-guard against known keys.
    */
   interface Map<K, V> {
     has<P extends K>(key: P): this is { get(key: P): V } & this;
   }
-  
+
   /**
-   * A version of `Body` that augments the `formData` method to supports returning a {@see TypedFormData}.
+   * Augments `Body` that augments the `formData` method to supports returning a {@see TypedFormData}.
    */
   interface Body {
     formData<K, V extends FormDataEntryValue = FormDataEntryValue>(): Promise<
@@ -71,9 +71,7 @@ export interface TypedFormData<
  * ```
  */
 export interface TypedURLSearchParams<K = string> {
-  /** {@see URLSearchParams.append} */
   append(name: K, value: string): void;
-  /** {@see URLSearchParams.delete} */
   delete(name: K, value?: string): void;
   get(name: K): string | null;
   getAll(name: K): string[];

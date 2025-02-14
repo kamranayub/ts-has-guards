@@ -43,7 +43,11 @@ Deno.test(function formDataTest() {
 Deno.test(async function formDataRequestTest() {
   type KnownKeys = "key" | "key2";
 
-  const req = new Request(new URL("https://test.com"));
+  const req = new Request(new URL("https://test.com"), { 
+    headers: { 'content-type': 'application/x-www-form-urlencoded' },
+    method: 'POST',
+    body: new FormData()
+  });
   const _formData = await req.formData<KnownKeys>();
 });
 
