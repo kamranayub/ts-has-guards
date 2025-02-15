@@ -50,7 +50,7 @@ This library was built with [Deno](https://deno.com).
 ## Usage
 
 To use the typed versions of `Map`, `URLSearchParams` and `FormData`, you need
-to explicitly use and import them (each of them are prefixed with `Typed`):
+to explicitly use and import them (each of them are prefixed with `Guarded`):
 
 ```ts
 import {
